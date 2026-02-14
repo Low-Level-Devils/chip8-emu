@@ -1,0 +1,6 @@
+$ move nums into registers
+0x6101
+0x6202
+
+$ Add Reg 2 to Reg 1
+0x8124
