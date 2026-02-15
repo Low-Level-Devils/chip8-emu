@@ -5,6 +5,8 @@ use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use crate::opcodes::*;
+
 pub struct Chip8 {
     general_registers: [u8; 16],
     memory: [u8; 4096],
@@ -142,11 +144,35 @@ impl Chip8 {
         ((upper_byte as u16) << 8) | lower_byte as u16
     }
 
+    pub fn set_register_to_value(&mut self, target_register: usize, target_value: u8) {
+        self.general_registers[target_register] = target_value;
+    }
+
     pub fn start_emulation(&mut self) {
         loop {
             let current_instruction = self.fetch_instruction();
 
+            let instruction_family = current_instruction & 0xF000;
 
+            match instruction_family {
+                0x0000 => return,
+                0x1000 => return,
+                0x2000 => return,
+                0x3000 => return,
+                0x4000 => return,
+                0x5000 => return,
+                0x6000 => opcode_family_0x6000(self, current_instruction),
+                0x7000 => return,
+                0x8000 => return,
+                0x9000 => return,
+                0xA000 => return,
+                0xB000 => return,
+                0xC000 => return,
+                0xD000 => return,
+                0xE000 => return,
+                0xF000 => return,
+                _ => return,
+            }
         }
     }
 }

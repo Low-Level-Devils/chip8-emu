@@ -1,4 +1,5 @@
 mod chip8;
+mod opcodes;
 
 use std::env;
 
@@ -18,9 +19,5 @@ fn main() {
 
     let _ = emulated_chip8.load_instructions(&args[1]);
 
-    let _ = emulated_chip8.dump_register_state();
-
-    let current_instruction = emulated_chip8.fetch_instruction();
-
-    println!("0x{:04X}", current_instruction);
+    emulated_chip8.start_emulation();
 }
