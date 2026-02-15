@@ -12,4 +12,4 @@ pub fn opcode_family_0x6000(emulated_chip: &mut Chip8, instruction: u16) {
     emulated_chip.set_register_to_value(target_register as usize, target_value as u8);
 
     emulated_chip.dump_register_state();
-} 
+}
