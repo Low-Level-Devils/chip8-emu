@@ -141,4 +141,12 @@ impl Chip8 {
 
         ((upper_byte as u16) << 8) | lower_byte as u16
     }
+
+    pub fn start_emulation(&mut self) {
+        loop {
+            let current_instruction = self.fetch_instruction();
+
+
+        }
+    }
 }
