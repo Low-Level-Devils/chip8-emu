@@ -124,7 +124,7 @@ impl Chip8 {
         for (index, &value) in self.general_registers.iter().enumerate() {
             writeln!(
                 register_dump_file,
-                "{:?} : {}",
+                "{:?} : 0x{:04X}",
                 GeneralRegisters::from_usize(index).unwrap(),
                 value
             )?;
