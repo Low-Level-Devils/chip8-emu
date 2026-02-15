@@ -9,14 +9,12 @@ fn main() {
 
     if args.len() < 2 {
         println!("INCORRECT USE!! Usage: ");
-        print!("cargo run <path_to_rom_file>");
+        println!("cargo run <path_to_rom_file>");
 
         return;
     }
 
     let mut emulated_chip8 = Chip8::new();
 
-    emulated_chip8.load_instructions(&args[1]);
-
-    emulated_chip8.dump_memory_state();
+    let _ = emulated_chip8.load_instructions(&args[1]);
 }

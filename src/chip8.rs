@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 
 pub struct Chip8 {
     general_registers: [u8; 16],
@@ -49,15 +49,15 @@ impl Chip8 {
         }
     }
 
-    pub fn load_instructions(&mut self, path_to_rom: &str) {
-        let mut rom_file = File::open(path_to_rom).expect("Failed to find input file");
+    pub fn load_instructions(&mut self, path_to_rom: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let rom_file = File::open(path_to_rom)?;
 
         let file_reader = BufReader::new(rom_file);
 
         let mut binary_data = Vec::new();
 
         for line in file_reader.lines() {
-            let line = line.expect("Failed to read line");
+            let line = line?;
 
             let parsed_instruction = line.split('$').next().unwrap_or("").trim();
 
@@ -83,11 +83,17 @@ impl Chip8 {
                 break;
             }
         }
+
+        self.dump_memory_state()
     }
 
-    pub fn dump_memory_state(&self) {
+    pub fn dump_memory_state(&self)  -> Result<(), Box<dyn std::error::Error>>{
+        let mut memory_map_file = File::create("memory.map")?;
+
         for (address, &instruction) in self.memory.iter().enumerate() {
-            println!("0x{:04X} : 0x{:02X}", address, instruction);
+            writeln!(memory_map_file, "0x{:04X} : 0x{:02X}", address, instruction)?;
         }
+
+        Ok(())
     }
 }
