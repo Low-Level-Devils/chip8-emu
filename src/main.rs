@@ -17,4 +17,6 @@ fn main() {
     let mut emulated_chip8 = Chip8::new();
 
     let _ = emulated_chip8.load_instructions(&args[1]);
+
+    let _ = emulated_chip8.dump_register_state();
 }

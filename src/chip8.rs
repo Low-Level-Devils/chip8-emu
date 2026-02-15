@@ -1,5 +1,9 @@
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 pub struct Chip8 {
     general_registers: [u8; 16],
@@ -12,6 +16,7 @@ pub struct Chip8 {
     sound_timer: u8,
 }
 
+#[derive(Debug, FromPrimitive)]
 enum GeneralRegisters {
     V0,
     V1,
@@ -35,6 +40,8 @@ const PROGRAM_START_ADDRESS: u16 = 0x200;
 const DELAY_TIMER_FREQUENCY_HZ: u8 = 60;
 const MAX_MEMORY_ADDRESS: u16 = 0xFFF;
 
+static REGISTER_DUMP_FILE_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
 impl Chip8 {
     pub fn new() -> Self {
         Chip8 {
@@ -49,7 +56,10 @@ impl Chip8 {
         }
     }
 
-    pub fn load_instructions(&mut self, path_to_rom: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn load_instructions(
+        &mut self,
+        path_to_rom: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let rom_file = File::open(path_to_rom)?;
 
         let file_reader = BufReader::new(rom_file);
@@ -87,12 +97,38 @@ impl Chip8 {
         self.dump_memory_state()
     }
 
-    pub fn dump_memory_state(&self)  -> Result<(), Box<dyn std::error::Error>>{
+    pub fn dump_memory_state(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut memory_map_file = File::create("memory.map")?;
 
         for (address, &instruction) in self.memory.iter().enumerate() {
             writeln!(memory_map_file, "0x{:04X} : 0x{:02X}", address, instruction)?;
         }
+
+        Ok(())
+    }
+
+    pub fn dump_register_state(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let first_access = !REGISTER_DUMP_FILE_INITIALIZED.swap(true, Ordering::SeqCst);
+
+        let mut register_dump_file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(first_access)
+            .append(!first_access)
+            .open("general_registers.dump")?;
+
+        writeln!(register_dump_file, "******************************")?;
+
+        for (index, &value) in self.general_registers.iter().enumerate() {
+            writeln!(
+                register_dump_file,
+                "{:?} : {}",
+                GeneralRegisters::from_usize(index).unwrap(),
+                value
+            )?;
+        }
+
+        writeln!(register_dump_file, "******************************")?;
 
         Ok(())
     }
