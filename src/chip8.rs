@@ -132,4 +132,13 @@ impl Chip8 {
 
         Ok(())
     }
+
+    pub fn fetch_instruction(&mut self) -> u16 {
+        let upper_byte = self.memory[self.program_counter as usize];
+        let lower_byte = self.memory[self.program_counter as usize + 1];
+
+        self.program_counter += 2;
+
+        ((upper_byte as u16) << 8) | lower_byte as u16
+    }
 }
